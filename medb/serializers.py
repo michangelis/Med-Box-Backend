@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Users, UserPerscriptionPill, Alarm
+from .models import Users, UserPerscriptionPill, Alarm, Pills, Comment
 from datetime import datetime
 
 
@@ -67,18 +67,38 @@ class UserPerscriptionPillSerializer(serializers.Serializer):
 
     class Meta:
         model = UserPerscriptionPill
-        fields = ['id', 'user']
+        fields = ['id', 'user_id']
 
 class UserSerlzer(serializers.ModelSerializer):
     prescription_pills = serializers.StringRelatedField(many=True)
+    gender = serializers.CharField(source='get_gender_display')
 
     class Meta:
         model = Users
-        fields = ['id', 'first_name', 'last_name', 'prescription_pills']
+        fields = ['id', 'first_name', 'last_name', 'email', 'phone', 'gender', 'description', 'imgSrc', 'prescription_pills']
 
     def to_representation(self, instance):
         user_data = super().to_representation(instance)
-        user_data['name'] = f"{user_data['first_name']} {user_data['last_name']}"
+        user_data['full_name'] = f"{user_data['first_name']} {user_data['last_name']}"
         user_data.pop('first_name')
         user_data.pop('last_name')
         return user_data
+
+class PillsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pills
+        fields = ['id', 'name', 'description']
+
+
+class PillSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pills
+        fields = ['id', 'name', 'description', 'warning', 'company', 'inventory', 'imageSrc']
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'user', 'commentText']

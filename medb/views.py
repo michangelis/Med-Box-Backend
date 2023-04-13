@@ -1,6 +1,9 @@
 from django.db.models import Q, Count
-from .models import Users, UserPerscriptionPill, Alarm
-from .serializers import UserPerscriptionPillSerializer, UsrSerializer, NextUserSerializer, UserSer, UserSerlzr
+from rest_framework import status
+
+from .models import Users, UserPerscriptionPill, Alarm, Pills, Comment
+from .serializers import UserPerscriptionPillSerializer, UsrSerializer, NextUserSerializer, \
+    UserSer, UserSerlzr, UserSerlzer, PillsSerializer, PillSerializer, CommentSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import pytz
@@ -13,7 +16,7 @@ def user_list(request):
 
 @api_view()
 def get_user_pills(request):
-    query_set = UserPerscriptionPill.objects.select_related('user').all()
+    query_set = Users.objects.select_related('userperscriptionpill').all()
     serializer = UserPerscriptionPillSerializer(query_set, many=True)
     return Response(serializer.data)
 
@@ -76,4 +79,69 @@ def count_taken(request):
     return Response(serializer.data)
 
 
+@api_view()
+def get_user_p(request):
+    users = []
+    for user in Users.objects.all():
+        pills = []
+        for user_pill in UserPerscriptionPill.objects.filter(user=user):
+            pill_data = {
+                'id': user_pill.per_pill.id,
+                'name': user_pill.per_pill.name,
+            }
+            pills.append(pill_data)
 
+        user_dict = UserSerlzer(user).data
+        user_dict['prescription_pills'] = pills
+        users.append(user_dict)
+
+    return Response(users)
+
+
+@api_view()
+def get_user(request, user_id):
+    try:
+        user = Users.objects.get(id=user_id)
+    except Users.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    pills = []
+    for user_pill in UserPerscriptionPill.objects.filter(user=user):
+        pill_data = {
+            'id': user_pill.per_pill.id,
+            'name': user_pill.per_pill.name
+        }
+        pills.append(pill_data)
+
+    user_data = UserSerlzer(user).data
+    user_data['prescription_pills'] = pills
+
+    return Response(user_data)
+
+@api_view()
+def get_pills(request):
+    pills = Pills.objects.filter(perscription=False)
+    serializer = PillsSerializer(pills, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view()
+def get_pill(request, pill_id):
+    try:
+        pill = Pills.objects.get(id=pill_id)
+    except Pills.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    serializer = PillSerializer(pill)
+    return Response(serializer.data)
+
+
+@api_view()
+def get_comments(request, pill_id):
+    try:
+        pill = Pills.objects.get(id=pill_id)
+    except Pills.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    comments = Comment.objects.filter(pill=pill)
+    serializer = CommentSerializer(comments, many=True)
+
+    return Response(serializer.data)
