@@ -46,7 +46,7 @@ def get_next_user(request):
         })
         return Response(serialized_next_user.data)
 
-    return Response({'message': 'No next user found.'})
+    return Response({'full_name': 'No one for today'})
 
 @api_view()
 def getUserCards(request):

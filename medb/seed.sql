@@ -102,7 +102,19 @@ values (10, 2, '/Users/Desktop/Alarm.wav', '23:00:00', 4, 6);
 insert into medb_alarm
 values (11, 2, '/Users/Desktop/Alarm.wav', '14:00:00', 4, 6);
 
-delete from medb_alarm where id=7;
+insert into medb_alarm
+values (12, 1, '/Users/Desktop/Alarm.wav', '15:00:00', 5, 6);
+
+insert into medb_alarm
+values (12, 1, '/Users/Desktop/Alarm.wav', '15:00:00', 5, 6);
+
+insert into medb_alarm
+values (12, 1, '/Users/Desktop/Alarm.wav', '23:00:00', 5, 6);
+
+delete from medb_alarm where id=12;
+
+select *
+from medb_comment;
 
 insert into medb_comment
 values (1, 'This pill was fantastic', 1, 1);
@@ -138,6 +150,8 @@ values (7, false, 7, '2023-04-13');/*Jane*/
 insert into medb_taken
 values (8, false, 11, '2023-04-13');/*David*/
 
+insert into medb_taken
+values (9, false, 12, '2023-04-14');/*David*/
 
 
 select medb_users.first_name, count(medb_users.first_name)

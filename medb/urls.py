@@ -12,6 +12,6 @@ urlpatterns = [
     path('get_user/<int:user_id>/', views.get_user),
     path('get_pills/', views.get_pills),
     path('get_pill/<int:pill_id>/', views.get_pill),
-    path('get_comments/<int:pill_id>/', views.get_comments  ),
+    path('get_comments/<int:pill_id>/', views.get_comments),
 
 ]

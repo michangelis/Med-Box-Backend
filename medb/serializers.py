@@ -36,6 +36,13 @@ class UserSer(serializers.ModelSerializer):
                 pills[user_pill.per_pill.name] = alarm.time
         return pills
 
+    def to_representation(self, instance):
+        user_data = super().to_representation(instance)
+        user_data['full_name'] = f"{user_data['first_name']} {user_data['last_name']}"
+        user_data.pop('first_name')
+        user_data.pop('last_name')
+        return user_data
+
 
 #for get next_user
 class UsrSerializer(serializers.ModelSerializer):
@@ -52,6 +59,13 @@ class NextUserSerializer(serializers.Serializer):
     last_name = serializers.CharField()
     pill_name = serializers.CharField()
     alarm_time = serializers.TimeField()
+
+    def to_representation(self, instance):
+        user_data = super().to_representation(instance)
+        user_data['full_name'] = f"{user_data['first_name']} {user_data['last_name']}"
+        user_data.pop('first_name')
+        user_data.pop('last_name')
+        return user_data
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -87,17 +101,30 @@ class UserSerlzer(serializers.ModelSerializer):
 class PillsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pills
-        fields = ['id', 'name', 'description']
+        fields = ['id', 'name', 'description', 'imageSrc']
 
 
 class PillSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pills
-        fields = ['id', 'name', 'description', 'warning', 'company', 'inventory', 'imageSrc']
+        fields = ['id', 'name', 'description', 'warning', 'company', 'inventory', 'imageSrc', 'weight']
+
+
+class USer(serializers.ModelSerializer):
+    class Meta:
+        model = Users
+        fields = ['id', 'first_name', 'last_name', 'email', 'imgSrc']
+
+    def to_representation(self, instance):
+        user_data = super().to_representation(instance)
+        user_data['full_name'] = f"{user_data['first_name']} {user_data['last_name']}"
+        user_data.pop('first_name')
+        user_data.pop('last_name')
+        return user_data
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField()
+    user = USer()
 
     class Meta:
         model = Comment
