@@ -1,13 +1,31 @@
 from django.db.models import Q, Count
 from rest_framework import status
-
-from .models import Users, UserPerscriptionPill, Alarm, Pills, Comment
+from .models import Users, UserPerscriptionPill, Alarm, Pills, Comment, Taken
 from .serializers import UserPerscriptionPillSerializer, UsrSerializer, NextUserSerializer, \
-    UserSer, UserSerlzr, UserSerlzer, PillsSerializer, PillSerializer, CommentSerializer
+    UserSer, UserSerlzr, UserSerlzer, PillsSerializer, PillSerializer, CommentSerializer, TakenSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import pytz
 from datetime import datetime
+from django.shortcuts import get_object_or_404
+
+
+@api_view(['POST'])
+def take_medication(request, alarm_id):
+    alarm = get_object_or_404(Alarm, pk=alarm_id)
+    taken = request.data.get('taken')
+
+    if taken is None:
+        return Response({'error': 'taken field is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    serializer = TakenSerializer(data={'taken': taken, 'alarm': alarm.id})
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view()
 def user_list(request):
@@ -38,7 +56,7 @@ def get_next_user(request):
         pill = user_pill.per_pill
         serialized_user = user_serializer_class(next_user)
         serialized_next_user = next_user_serializer_class({
-            'id': serialized_user.data['id'],
+            'alarm_id': next_alarm.id,
             'first_name': serialized_user.data['first_name'],
             'last_name': serialized_user.data['last_name'],
             'pill_name': pill.name,
@@ -48,22 +66,30 @@ def get_next_user(request):
 
     return Response({'full_name': 'No one for today'})
 
+
 @api_view()
 def getUserCards(request):
-    current_time = datetime.now().time()
+    timezone = pytz.timezone('Europe/Athens')
+    now = datetime.now(timezone)
+    current_day = now.strftime('%A')
+    current_time = now.strftime('%H:%M:%S')
 
     users = []
     for user in Users.objects.all():
-        pills = {}
+        next_pill = {}
         for user_pill in UserPerscriptionPill.objects.filter(user=user):
-            alarm = Alarm.objects.filter(user_prescription_pill=user_pill, time__gt=current_time).order_by('time').first()
+            alarm = Alarm.objects.filter(user_prescription_pill=user_pill, time__gt=current_time,
+                                         day__day=current_day).order_by('time').first()
             if alarm:
-                pills['id'] = user_pill.per_pill.id
-                pills['name'] = user_pill.per_pill.name
-                pills['time'] = alarm.time
+                if not next_pill or alarm.time < next_pill['time']:
+                    next_pill = {
+                        'id': user_pill.per_pill.id,
+                        'name': user_pill.per_pill.name,
+                        'time': alarm.time
+                    }
 
         user_dict = UserSer(user).data
-        user_dict['prescription_pills'] = pills
+        user_dict['prescription_pill'] = next_pill
         users.append(user_dict)
 
     return Response(users)

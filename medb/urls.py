@@ -13,5 +13,6 @@ urlpatterns = [
     path('get_pills/', views.get_pills),
     path('get_pill/<int:pill_id>/', views.get_pill),
     path('get_comments/<int:pill_id>/', views.get_comments),
+    path('take_medication/<int:alarm_id>/', views.take_medication),
 
 ]
