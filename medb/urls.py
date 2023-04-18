@@ -11,8 +11,10 @@ urlpatterns = [
     path('get_user_p/', views.get_user_p),
     path('get_user/<int:user_id>/', views.get_user),
     path('get_pills/', views.get_pills),
+    path('get_per_pills/', views.get_per_pills),
     path('get_pill/<int:pill_id>/', views.get_pill),
     path('get_comments/<int:pill_id>/', views.get_comments),
     path('take_medication/<int:alarm_id>/', views.take_medication),
-
+    path('register_user/', views.register_user, name='register_user'),
+    path('create_pill/', views.create_pill, name='create_pill'),
 ]

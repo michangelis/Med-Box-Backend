@@ -3,11 +3,45 @@ from .models import Users, UserPerscriptionPill, Alarm, Pills, Comment, Taken
 import pytz
 from datetime import datetime, date
 
+
+class CreatePillSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pills
+        fields = '__all__'
+
+
+class CreateUserProfileSerializer(serializers.ModelSerializer):
+    imgSrc = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Users
+        exclude = ('prescription_pills',)
+
+    def create(self, validated_data):
+        user = Users.objects.create(**validated_data)
+        return user
+
+    def get_imgSrc(self, obj):
+        gender = obj.gender
+        if gender:
+            if gender == Users.MALE:
+                return './users/user1.jpg'
+            elif gender == Users.FEMALE:
+                return './users/user2.jpg'
+            elif gender == Users.OTHER:
+                return './users/user3.jpg'
+        return None
+
+
+
+
+
 #for take_medication
 class TakenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Taken
         fields = '__all__'
+
 
 #for count_taken
 class UserSerlzr(serializers.ModelSerializer):

@@ -65,7 +65,7 @@ from medb_pills;
 
 select medb_users.first_name, medb_pills.name
 from medb_users, medb_user_prescription_pill, medb_pills
-where medb_users.id = medb_user_prescription_pill.user_id and medb_user_prescription_pill.per_pill_id=medb_pills.id
+where medb_users.id = medb_user_prescription_pill.user_id and medb_user_prescription_pill.per_pill_id=medb_pills.id;
 
 insert into medb_alarm
 values (1, 1, '/Users/Desktop/Alarm.wav', '10:00:00', 1, 1);
@@ -109,12 +109,81 @@ insert into medb_alarm
 values (12, 1, '/Users/Desktop/Alarm.wav', '15:00:00', 5, 6);
 
 insert into medb_alarm
-values (12, 1, '/Users/Desktop/Alarm.wav', '23:00:00', 5, 6);
+values (13, 1, '/Users/Desktop/Alarm.wav', '13:00:00', 1, 1);
+
+insert into medb_alarm
+values (14, 1, '/Users/Desktop/Alarm.wav', '11:35:00', 1, 1);
+
+insert into medb_alarm
+values (15, 1, '/Users/Desktop/Alarm.wav', '11:37:00', 1, 3);
+
+insert into medb_alarm
+values (16, 1, '/Users/Desktop/Alarm.wav', '13:02:00', 1, 3);
+
+insert into medb_alarm
+values (17, 1, '/Users/Desktop/Alarm.wav', '14:09:00', 1, 3);
+
+insert into medb_alarm
+values (18, 1, '/Users/Desktop/Alarm.wav', '14:15:00', 1, 3);
+
+insert into medb_alarm
+values (19, 1, '/Users/Desktop/Alarm.wav', '14:17:00', 1, 3);
+
+insert into medb_alarm
+values (20, 1, '/Users/Desktop/Alarm.wav', '16:46:00', 1, 3);
+
+insert into medb_alarm
+values (21, 1, '/Users/Desktop/Alarm.wav', '16:48:00', 1, 3);
+
+insert into medb_alarm
+values (22, 1, '/Users/Desktop/Alarm.wav', '16:49:00', 1, 3);
+
+insert into medb_alarm
+values (23, 1, '/Users/Desktop/Alarm.wav', '16:52:00', 1, 3);
+
+insert into medb_alarm
+    values (24, 1, '/Users/Desktop/Alarm.wav', '16:55:00', 1, 3);
+
+insert into medb_alarm
+values (25, 1, '/Users/Desktop/Alarm.wav', '17:05:00', 1, 3);
+
+insert into medb_alarm
+values (26, 1, '/Users/Desktop/Alarm.wav', '17:07:00', 1, 3);
+
+insert into medb_alarm
+values (27, 1, '/Users/Desktop/Alarm.wav', '17:09:00', 1, 3);
+
+insert into medb_alarm
+values (28, 1, '/Users/Desktop/Alarm.wav', '17:17:00', 1, 3);
+
+insert into medb_alarm
+values (29, 1, '/Users/Desktop/Alarm.wav', '10:30:00', 2, 4);
+
+insert into medb_alarm
+values (30, 1, '/Users/Desktop/Alarm.wav', '10:32:00', 2, 4);
+
+insert into medb_alarm
+values (31, 1, '/Users/Desktop/Alarm.wav', '23:03:00', 2, 4);
+
+insert into medb_alarm
+values (32, 1, '/Users/Desktop/Alarm.wav', '23:13:00', 2, 4);
+
+insert into medb_alarm
+values (33, 1, '/Users/Desktop/Alarm.wav', '23:17:00', 2, 4);
+
+insert into medb_alarm
+values (34, 1, '/Users/Desktop/Alarm.wav', '23:45:00', 2, 4);
+
+insert into medb_alarm
+values (35, 1, '/Users/Desktop/Alarm.wav', '23:47:00', 2, 4);
+
+select *
+from medb_taken;
 
 delete from medb_alarm where id=12;
 
 select *
-from medb_comment;
+from medb_taken;
 
 insert into medb_comment
 values (1, 'This pill was fantastic', 1, 1);
@@ -150,8 +219,9 @@ values (7, false, 7, '2023-04-13');/*Jane*/
 insert into medb_taken
 values (8, false, 11, '2023-04-13');/*David*/
 
+
 insert into medb_taken
-values (9, false, 12, '2023-04-14');/*David*/
+values (9, false, 12, '2023-04-14');
 
 
 select medb_users.first_name, count(medb_users.first_name)
@@ -168,12 +238,15 @@ select medb_users.first_name, medb_comment.commentText, medb_pills.name
 from medb_comment, medb_users, medb_pills
 where medb_pills.id = 1 and medb_comment.pill_id = medb_pills.id and medb_comment.user_id = medb_users.id;
 
-select medb_users.first_name, medb_users.last_name
+select medb_users.first_name, medb_users.last_name, medb_alarm.time
 from medb_alarm, medb_days, medb_users, medb_user_prescription_pill
-where medb_days.day = 'Monday' and medb_days.id = medb_alarm.id and medb_alarm.user_prescription_pill_id = medb_user_prescription_pill.id and medb_user_prescription_pill.user_id = medb_users.id;
+where medb_days.day = 'Tuesday' and medb_days.id = medb_alarm.day_id and medb_alarm.user_prescription_pill_id = medb_user_prescription_pill.id and medb_user_prescription_pill.user_id = medb_users.id;
 
 select medb_users.first_name, medb_pills.name, medb_alarm.time
 from medb_users, medb_user_prescription_pill, medb_alarm, medb_days, medb_pills
 where medb_days.day = 'Wednesday' and medb_days.id = medb_alarm.day_id and medb_alarm.user_prescription_pill_id = medb_user_prescription_pill.id and medb_users.id = medb_user_prescription_pill.user_id and medb_user_prescription_pill.per_pill_id = medb_pills.id;
 
+SELECT * FROM medb_users;
+
+delete from medb_pills where id=8
 

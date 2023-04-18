@@ -7,7 +7,7 @@ class Pills(models.Model):
     warning = models.TextField(null=True)
     company = models.CharField(max_length=255)
     inventory = models.IntegerField()
-    imageSrc = models.SlugField(null=True)
+    imageSrc = models.SlugField(null=True, default='./pills/Acetaminophen.jpeg')
     weight = models.CharField(max_length=255, null=True)
     perscription = models.BooleanField(default=False)
 
@@ -53,11 +53,11 @@ class Users(models.Model):
     last_name = models.CharField(max_length=255)
     email = models.EmailField()
     phone = models.CharField(max_length=255)
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default=MALE)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default=MALE, null=True)
     description = models.TextField(null=True)
     birth_date = models.DateField()
     imgSrc = models.SlugField(null=True)
-    prescription_pills = models.ManyToManyField(Pills, through=UserPerscriptionPill)
+    prescription_pills = models.ManyToManyField(Pills, through=UserPerscriptionPill, null=True)
 
 
 class Comment(models.Model):

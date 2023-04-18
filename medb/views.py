@@ -2,12 +2,51 @@ from django.db.models import Q, Count
 from rest_framework import status
 from .models import Users, UserPerscriptionPill, Alarm, Pills, Comment, Taken
 from .serializers import UserPerscriptionPillSerializer, UsrSerializer, NextUserSerializer, \
-    UserSer, UserSerlzr, UserSerlzer, PillsSerializer, PillSerializer, CommentSerializer, TakenSerializer
+    UserSer, UserSerlzr, UserSerlzer, PillsSerializer, PillSerializer, CommentSerializer, \
+    TakenSerializer, CreateUserProfileSerializer, CreatePillSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import pytz
 from datetime import datetime
 from django.shortcuts import get_object_or_404
+from .models import Users, Pills, UserPerscriptionPill
+from playsound import playsound
+import threading
+
+
+
+
+@api_view(['POST'])
+def create_pill(request):
+    serializer = CreatePillSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def register_user(request):
+    print(request.data)
+    serializer = CreateUserProfileSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    validated_data = serializer.validated_data
+    birth_date = validated_data.get('birth_date')
+    if birth_date:
+        validated_data['birth_date'] = birth_date.strftime('%Y-%m-%d')
+    gender = validated_data.get('gender')
+    if gender:
+        if gender == Users.MALE:
+            validated_data['imgSrc'] = './users/user1.jpg'
+        elif gender == Users.FEMALE:
+            validated_data['imgSrc'] = './users/user2.jpg'
+        elif gender == Users.OTHER:
+            validated_data['imgSrc'] = './users/user3.jpg'
+    user = Users.objects.create(**validated_data)
+    response_data = {
+        "user": CreateUserProfileSerializer(user, context=serializer.context).data,
+    }
+    return Response(response_data)
 
 
 @api_view(['POST'])
@@ -144,9 +183,17 @@ def get_user(request, user_id):
 
     return Response(user_data)
 
+
+@api_view()
+def get_per_pills(request):
+    pills = Pills.objects.filter(perscription=False)
+    serializer = PillsSerializer(pills, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 @api_view()
 def get_pills(request):
-    pills = Pills.objects.filter(perscription=False)
+    pills = Pills.objects.all()
     serializer = PillsSerializer(pills, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
