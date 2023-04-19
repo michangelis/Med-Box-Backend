@@ -1,6 +1,6 @@
 from django.db.models import Q, Count
 from rest_framework import status
-from .models import Users, UserPerscriptionPill, Alarm, Pills, Comment, Taken
+from .models import Users, UserPerscriptionPill, Alarm, Pills, Comment, Taken, Days
 from .serializers import UserPerscriptionPillSerializer, UsrSerializer, NextUserSerializer, \
     UserSer, UserSerlzr, UserSerlzer, PillsSerializer, PillSerializer, CommentSerializer, \
     TakenSerializer, CreateUserProfileSerializer, CreatePillSerializer
@@ -10,10 +10,26 @@ import pytz
 from datetime import datetime
 from django.shortcuts import get_object_or_404
 from .models import Users, Pills, UserPerscriptionPill
-from playsound import playsound
-import threading
 
 
+@api_view(['POST'])
+def create_alarms(request):
+    user_id = request.data.get('user_id')
+    pill_id = request.data.get('pill_id')
+    user = get_object_or_404(Users, pk=user_id)
+    pill = get_object_or_404(Pills, pk=pill_id)
+    user_pill = UserPerscriptionPill.objects.create(user=user, per_pill=pill)
+    for form in request.data['formValues']:
+        time = form.get('time')
+        days = form.get('days')
+        dosage = form.get('dosage')
+        for day in days:
+            alarm_day = get_object_or_404(Days, pk=day)
+            if dosage is not None:
+                alarm = Alarm.objects.create(quantity=dosage, time=time, day=alarm_day, user_prescription_pill=user_pill)
+            else:
+                alarm = Alarm.objects.create(time=time, day=alarm_day, user_prescription_pill=user_pill)
+    return Response(data={"message": "received"}, status=200)
 
 
 @api_view(['POST'])

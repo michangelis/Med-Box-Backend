@@ -27,7 +27,7 @@ class Days(models.Model):
 
 class Alarm(models.Model):
     quantity = models.IntegerField(default=1)
-    soundSrc = models.SlugField()
+    soundSrc = models.SlugField(default='/Users/Desktop/Alarm.wav')
     time = models.TimeField(default='-')
     day = models.ForeignKey(Days, on_delete=models.PROTECT, default='-')
     user_prescription_pill = models.ForeignKey(UserPerscriptionPill, on_delete=models.CASCADE, default='-')

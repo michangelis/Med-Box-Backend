@@ -4,12 +4,15 @@ import pytz
 from datetime import datetime, date
 
 
+
+#for create_pill
 class CreatePillSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pills
         fields = '__all__'
 
 
+#for register_user
 class CreateUserProfileSerializer(serializers.ModelSerializer):
     imgSrc = serializers.SerializerMethodField(read_only=True)
 
