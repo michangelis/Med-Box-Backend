@@ -13,12 +13,28 @@ from .models import Users, Pills, UserPerscriptionPill
 
 
 @api_view(['POST'])
+def login(request):
+    first_name, last_name = request.data['username'].split()
+    print(first_name)
+    print(last_name)
+    try:
+        user = Users.objects.get(first_name=first_name, last_name=last_name, password=request.data['password'])
+        return Response(data={"message": "received", "img": user.imgSrc}, status=200)
+    except Users.DoesNotExist:
+        return Response(data={"message": "No user found"}, status=404)
+
+
+
+@api_view(['POST'])
 def create_alarms(request):
     user_id = request.data.get('user_id')
     pill_id = request.data.get('pill_id')
     user = get_object_or_404(Users, pk=user_id)
     pill = get_object_or_404(Pills, pk=pill_id)
-    user_pill = UserPerscriptionPill.objects.create(user=user, per_pill=pill)
+    user_pill = UserPerscriptionPill.objects.filter(user=user, per_pill=pill).first()
+    if user_pill is None:
+        user_pill = UserPerscriptionPill.objects.create(user=user, per_pill=pill)
+
     for form in request.data['formValues']:
         time = form.get('time')
         days = form.get('days')

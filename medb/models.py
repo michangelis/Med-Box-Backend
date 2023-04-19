@@ -51,6 +51,7 @@ class Users(models.Model):
 
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
+    password = models.CharField(max_length=255, default='-')
     email = models.EmailField()
     phone = models.CharField(max_length=255)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default=MALE, null=True)
