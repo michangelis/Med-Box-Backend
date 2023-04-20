@@ -12,6 +12,32 @@ from django.shortcuts import get_object_or_404
 from .models import Users, Pills, UserPerscriptionPill
 
 
+
+
+@api_view(['POST'])
+def take_pill(request):
+    pill = Pills.objects.get(pk=request.data["pill_id"])
+    if pill.motor is not None:
+        print(pill.motor.script)
+    return Response({'message': 'pill_id received'}, status=200)
+
+
+
+@api_view(['POST'])
+def post_pill_comment(request):
+    user_id = request.data['user_id']
+    pill_id = request.data['pill_id']
+    comment_text = request.data['commentText']
+    print(user_id)
+    print(pill_id)
+    print(comment_text)
+    user = get_object_or_404(Users, pk=user_id)
+    pill = get_object_or_404(Pills, pk=pill_id)
+    Comment.objects.create(user=user, pill=pill, commentText=comment_text)
+
+    return Response(data={"message": "Data received"}, status=200)
+
+
 @api_view(['POST'])
 def login(request):
     first_name, last_name = request.data['username'].split()
@@ -19,7 +45,7 @@ def login(request):
     print(last_name)
     try:
         user = Users.objects.get(first_name=first_name, last_name=last_name, password=request.data['password'])
-        return Response(data={"message": "received", "img": user.imgSrc}, status=200)
+        return Response(data={"message": "received", "img": user.imgSrc, "user_id": user.id}, status=200)
     except Users.DoesNotExist:
         return Response(data={"message": "No user found"}, status=404)
 
@@ -85,6 +111,7 @@ def register_user(request):
 def take_medication(request, alarm_id):
     alarm = get_object_or_404(Alarm, pk=alarm_id)
     taken = request.data.get('taken')
+
 
     if taken is None:
         return Response({'error': 'taken field is required'}, status=status.HTTP_400_BAD_REQUEST)

@@ -19,4 +19,8 @@ urlpatterns = [
     path('create_pill/', views.create_pill, name='create_pill'),
     path('create_alarms/', views.create_alarms, name='create_alarms'),
     path('login/', views.login, name='login'),
+    path('post_pill_comment/', views.post_pill_comment, name='post_pill_comment'),
+    path('take_pill/', views.take_pill, name='take_pill'),
+
+
 ]

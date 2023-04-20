@@ -1,6 +1,10 @@
 from django.db import models
 
 
+class Motor(models.Model):
+    script = models.SlugField(default='/somepath')
+
+
 class Pills(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True)
@@ -10,6 +14,8 @@ class Pills(models.Model):
     imageSrc = models.SlugField(null=True, default='./pills/Acetaminophen.jpeg')
     weight = models.CharField(max_length=255, null=True)
     perscription = models.BooleanField(default=False)
+    motor = models.ForeignKey(Motor, on_delete=models.PROTECT, null=True)
+
 
 
 class UserPerscriptionPill(models.Model):
@@ -65,3 +71,4 @@ class Comment(models.Model):
     user = models.ForeignKey(Users, on_delete=models.PROTECT)
     pill = models.ForeignKey(Pills, on_delete=models.PROTECT)
     commentText = models.TextField()
+
