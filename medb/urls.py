@@ -21,6 +21,7 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('post_pill_comment/', views.post_pill_comment, name='post_pill_comment'),
     path('take_pill/', views.take_pill, name='take_pill'),
+    path('deload/', views.deload, name='deload'),
 
 
 ]

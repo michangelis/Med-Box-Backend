@@ -3,6 +3,7 @@ from django.db import models
 
 class Motor(models.Model):
     script = models.SlugField(default='/somepath')
+    dscript = models.SlugField(default='/somepath')
 
 
 class Pills(models.Model):

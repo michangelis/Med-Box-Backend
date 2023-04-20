@@ -12,15 +12,39 @@ from django.shortcuts import get_object_or_404
 from .models import Users, Pills, UserPerscriptionPill
 
 
+@api_view(['POST'])
+def deload(request):
+    print(request.data["pill_id"])
+    pill = get_object_or_404(Pills, pk=request.data["pill_id"])
+    if pill.motor is not None:
+        for i in range(11):
+            print(pill.motor.dscript)
+        pill.inventory = 0
+        pill.motor = None
+        pill.save()
+        return Response({'message': 'There is a pill in the machine'}, status=200)
+    else:
+        return Response({'message': 'There is Not a pill in the machine'}, status=200)
+
 
 
 @api_view(['POST'])
 def take_pill(request):
     pill = Pills.objects.get(pk=request.data["pill_id"])
     if pill.motor is not None:
-        print(pill.motor.script)
-    return Response({'message': 'pill_id received'}, status=200)
-
+        new_inv = pill.inventory - 1
+        if new_inv >= 0:
+            print(pill.motor.script)
+            pill.inventory = new_inv
+            pill.save()
+            return Response({'message': 'Here is your pill'}, status=200)
+        elif new_inv == 0:
+            print(pill.motor.script)
+            pill.motor = None
+            pill.save()
+            return Response({'message': 'Here is your pill but empty'}, status=200)
+    else:
+        return Response({'message': 'No pills in machine'}, status=200)
 
 
 @api_view(['POST'])
@@ -110,8 +134,18 @@ def register_user(request):
 @api_view(['POST'])
 def take_medication(request, alarm_id):
     alarm = get_object_or_404(Alarm, pk=alarm_id)
-    motor = alarm.user_prescription_pill.per_pill.motor
-    print(motor.script)
+    pill = alarm.user_prescription_pill.per_pill
+    if pill.motor is not None:
+        new_inv = pill.inventory - alarm.quantity
+        if new_inv >= 0:
+            q = 0
+            while q < alarm.quantity:
+                print(pill.motor.script)
+                q += 1
+            pill.inventory = new_inv
+            pill.save()
+        else:
+            return Response({'message': 'No available pills'}, status=200)
 
     taken = request.data.get('taken')
 
