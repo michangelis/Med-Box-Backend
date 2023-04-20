@@ -110,6 +110,9 @@ def register_user(request):
 @api_view(['POST'])
 def take_medication(request, alarm_id):
     alarm = get_object_or_404(Alarm, pk=alarm_id)
+    motor = alarm.user_prescription_pill.per_pill.motor
+    print(motor)
+
     taken = request.data.get('taken')
 
 
