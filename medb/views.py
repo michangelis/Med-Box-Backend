@@ -72,7 +72,7 @@ def deload(request):
 @api_view(['POST'])
 def take_pill(request):
     pill = Pills.objects.get(pk=request.data["pill_id"])
-    box = False
+    box = True
     if pill.motor is not None:
         if box:
             new_inv = pill.inventory - 1
@@ -180,9 +180,22 @@ def register_user(request):
     return Response(response_data)
 
 
+@api_view()
+def verify_user(request, alarm_id):
+    alarm = get_object_or_404(Alarm, pk=alarm_id)
+    first_name = alarm.user_prescription_pill.user.first_name
+    last_name = alarm.user_prescription_pill.user.last_name
+    full_name = f"{first_name}_{last_name}"
+    print(full_name)
+    if full_name is not None:
+        return Response({'message': False}, status=200)
+    else:
+        return Response({'message': True}, status=200)
+
+
 @api_view(['POST'])
 def take_medication(request, alarm_id):
-    box = False
+    box = True
     alarm = get_object_or_404(Alarm, pk=alarm_id)
     pill = alarm.user_prescription_pill.per_pill
     if pill.motor is not None:
@@ -200,7 +213,7 @@ def take_medication(request, alarm_id):
                     pill.save()
                     message = "The pills are empty"
         else:
-            message = "Please insert the box"
+            return Response({'message': 'Please insert the box'}, status=200)
     else:
         return Response({'message': 'No pills in machine'}, status=200)
 
@@ -337,17 +350,15 @@ def get_user(request, user_id):
 
     return Response(user_data)
 
-
 @api_view()
 def get_per_pills(request):
-    pills = Pills.objects.filter(perscription=False)
+    pills = Pills.objects.exclude(motor=None).filter(perscription=True)
     serializer = PillsSerializer(pills, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-
 @api_view()
 def get_pills(request):
-    pills = Pills.objects.all()
+    pills = Pills.objects.filter()
     serializer = PillsSerializer(pills, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
