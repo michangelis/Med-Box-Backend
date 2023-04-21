@@ -24,5 +24,5 @@ urlpatterns = [
     path('deload/', views.deload, name='deload'),
     path('get_disable/<int:pill_id>/', views.get_disable),
     path('get_user_alarms/<int:user_id>/', views.get_user_alarms),
-
+    path('verify_user/', views.verify_user),
 ]

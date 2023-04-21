@@ -161,7 +161,7 @@ class UserSerlzer(serializers.ModelSerializer):
 class PillsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pills
-        fields = ['id', 'name', 'description', 'imageSrc']
+        fields = ['id', 'name', 'description', 'imageSrc', 'perscription']
 
 
 class PillSerializer(serializers.ModelSerializer):
