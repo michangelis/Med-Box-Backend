@@ -175,7 +175,7 @@ def register_user(request):
     response_data = {
         "user": CreateUserProfileSerializer(user, context=serializer.context).data,
     }
-    full_name = f"{user.first_name} {user.last_name}"
+    full_name = f"{user.first_name}_{user.last_name}"
     print(full_name)
     return Response(response_data)
 
