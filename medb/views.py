@@ -12,6 +12,15 @@ from django.shortcuts import get_object_or_404
 from .models import Users, Pills, UserPerscriptionPill
 from django.http import HttpRequest
 
+@api_view()
+def get_box(request):
+    print('angelkas cool electician shit')
+    box = True
+    if box:
+        return Response({'message': 'Box is inserted', 'box': True}, status=200)
+    else:
+        return Response({'message': 'Please insert the box', 'box': False}, status=200)
+
 
 
 @api_view()
@@ -72,22 +81,18 @@ def deload(request):
 @api_view(['POST'])
 def take_pill(request):
     pill = Pills.objects.get(pk=request.data["pill_id"])
-    box = True
     if pill.motor is not None:
-        if box:
-            new_inv = pill.inventory - 1
-            if new_inv > 0:
-                print(pill.motor.script)
-                pill.inventory = new_inv
-                pill.save()
-                return Response({'message': 'Here is your pill'}, status=200)
-            elif new_inv == 0:
-                print(pill.motor.script)
-                pill.motor = None
-                pill.save()
-                return Response({'message': 'Here is your pill but empty'}, status=200)
-        else:
-            return Response({'message': 'Please insert the box', 'box': False}, status=200)
+        new_inv = pill.inventory - 1
+        if new_inv > 0:
+            print(pill.motor.script)
+            pill.inventory = new_inv
+            pill.save()
+            return Response({'message': 'Here is your pill'}, status=200)
+        elif new_inv == 0:
+            print(pill.motor.script)
+            pill.motor = None
+            pill.save()
+            return Response({'message': 'Here is your pill but empty'}, status=200)
     else:
         return Response({'message': 'No pills in machine'}, status=200)
 
@@ -217,13 +222,7 @@ def take_medication(request, alarm_id):
     else:
         return Response({'message': 'No pills in machine'}, status=200)
 
-
-    taken = request.data.get('taken')
-
-
-    if taken is None:
-        return Response({'error': 'taken field is required'}, status=status.HTTP_400_BAD_REQUEST)
-
+    taken = True
     serializer = TakenSerializer(data={'taken': taken, 'alarm': alarm.id})
 
     if serializer.is_valid():
