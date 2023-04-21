@@ -1,15 +1,55 @@
 from django.db.models import Q, Count
 from rest_framework import status
-from .models import Users, UserPerscriptionPill, Alarm, Pills, Comment, Taken, Days
+from .models import Users, UserPerscriptionPill, Alarm, Pills, Comment, Taken, Days, Motor
 from .serializers import UserPerscriptionPillSerializer, UsrSerializer, NextUserSerializer, \
     UserSer, UserSerlzr, UserSerlzer, PillsSerializer, PillSerializer, CommentSerializer, \
     TakenSerializer, CreateUserProfileSerializer, CreatePillSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import pytz
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.shortcuts import get_object_or_404
 from .models import Users, Pills, UserPerscriptionPill
+from django.http import HttpRequest
+
+
+
+@api_view()
+def get_user_alarms(request: HttpRequest, user_id):
+    user = get_object_or_404(Users, pk=user_id)
+    user_pills = UserPerscriptionPill.objects.filter(user=user).all()
+    alarms = Alarm.objects.filter(user_prescription_pill__in=user_pills).all()
+
+    # Create a list of dictionaries containing the required information
+    alarm_list = []
+    for alarm in alarms:
+        pill_name = alarm.user_prescription_pill.per_pill.name
+        alarm_time = alarm.time
+        today = datetime.now().date()
+        this_weekday = today.weekday()
+        target_weekday = alarm.day.id - 1
+        days_difference = target_weekday - this_weekday
+        target_date = today + timedelta(days=days_difference)
+        target_time = datetime.strptime(str(alarm_time), '%H:%M:%S').time()
+        target_datetime = datetime.combine(target_date, target_time)
+
+        alarm_data = {
+            'id': alarm.id,
+            'title': pill_name,
+            'start': target_datetime.isoformat(),
+        }
+        alarm_list.append(alarm_data)
+
+    return Response({'alarms': alarm_list}, status=200)
+
+
+@api_view()
+def get_disable(request, pill_id):
+    pill = get_object_or_404(Pills, pk=pill_id)
+    if pill.motor is None:
+        return Response({'disabled': True}, status=200)
+    else:
+        return Response({'disabled': False}, status=200)
 
 
 @api_view(['POST'])
@@ -21,6 +61,7 @@ def deload(request):
             print(pill.motor.dscript)
         pill.inventory = 0
         pill.motor = None
+
         pill.save()
         return Response({'message': 'There is a pill in the machine'}, status=200)
     else:
@@ -31,18 +72,22 @@ def deload(request):
 @api_view(['POST'])
 def take_pill(request):
     pill = Pills.objects.get(pk=request.data["pill_id"])
+    box = False
     if pill.motor is not None:
-        new_inv = pill.inventory - 1
-        if new_inv >= 0:
-            print(pill.motor.script)
-            pill.inventory = new_inv
-            pill.save()
-            return Response({'message': 'Here is your pill'}, status=200)
-        elif new_inv == 0:
-            print(pill.motor.script)
-            pill.motor = None
-            pill.save()
-            return Response({'message': 'Here is your pill but empty'}, status=200)
+        if box:
+            new_inv = pill.inventory - 1
+            if new_inv > 0:
+                print(pill.motor.script)
+                pill.inventory = new_inv
+                pill.save()
+                return Response({'message': 'Here is your pill'}, status=200)
+            elif new_inv == 0:
+                print(pill.motor.script)
+                pill.motor = None
+                pill.save()
+                return Response({'message': 'Here is your pill but empty'}, status=200)
+        else:
+            return Response({'message': 'Please insert the box', 'box': False}, status=200)
     else:
         return Response({'message': 'No pills in machine'}, status=200)
 
@@ -52,9 +97,6 @@ def post_pill_comment(request):
     user_id = request.data['user_id']
     pill_id = request.data['pill_id']
     comment_text = request.data['commentText']
-    print(user_id)
-    print(pill_id)
-    print(comment_text)
     user = get_object_or_404(Users, pk=user_id)
     pill = get_object_or_404(Pills, pk=pill_id)
     Comment.objects.create(user=user, pill=pill, commentText=comment_text)
@@ -65,8 +107,6 @@ def post_pill_comment(request):
 @api_view(['POST'])
 def login(request):
     first_name, last_name = request.data['username'].split()
-    print(first_name)
-    print(last_name)
     try:
         user = Users.objects.get(first_name=first_name, last_name=last_name, password=request.data['password'])
         return Response(data={"message": "received", "img": user.imgSrc, "user_id": user.id}, status=200)
@@ -100,16 +140,23 @@ def create_alarms(request):
 
 @api_view(['POST'])
 def create_pill(request):
-    serializer = CreatePillSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    null_values = Pills.objects.exclude(motor__isnull=True).count()
+    if null_values < 4:
+        empty_motor = Pills.objects.exclude(motor__isnull=False).values_list('id', flat=True).first()
+        serializer = CreatePillSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(motor_id=empty_motor)
+            motor = get_object_or_404(Motor, pk=empty_motor)
+            for inv in range(serializer.data["inventory"]):
+                print(motor.script)
+            return Response({"message": "Created successfully"}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"message": "Something went wrong please try again"}, status=200)
+    return Response({"message": "The machine is full"}, status=200)
 
 
 @api_view(['POST'])
 def register_user(request):
-    print(request.data)
     serializer = CreateUserProfileSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     validated_data = serializer.validated_data
@@ -128,24 +175,35 @@ def register_user(request):
     response_data = {
         "user": CreateUserProfileSerializer(user, context=serializer.context).data,
     }
+    full_name = f"{user.first_name}_{user.last_name}"
+    print(full_name)
     return Response(response_data)
 
 
 @api_view(['POST'])
 def take_medication(request, alarm_id):
+    box = False
     alarm = get_object_or_404(Alarm, pk=alarm_id)
     pill = alarm.user_prescription_pill.per_pill
     if pill.motor is not None:
-        new_inv = pill.inventory - alarm.quantity
-        if new_inv >= 0:
-            q = 0
-            while q < alarm.quantity:
-                print(pill.motor.script)
-                q += 1
-            pill.inventory = new_inv
-            pill.save()
+        if box:
+            for quant in range(alarm.quantity):
+                new_inv = pill.inventory - 1
+                if new_inv > 0:
+                    print(pill.motor.script)
+                    pill.inventory = new_inv
+                    pill.save()
+                    message = "Here are your pills"
+                elif new_inv == 0:
+                    print(pill.motor.script)
+                    pill.motor = None
+                    pill.save()
+                    message = "The pills are empty"
         else:
-            return Response({'message': 'No available pills'}, status=200)
+            message = "Please insert the box"
+    else:
+        return Response({'message': 'No pills in machine'}, status=200)
+
 
     taken = request.data.get('taken')
 
