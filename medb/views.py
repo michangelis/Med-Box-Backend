@@ -175,6 +175,7 @@ def register_user(request):
     response_data = {
         "user": CreateUserProfileSerializer(user, context=serializer.context).data,
     }
+    print("ML")
     return Response(response_data)
 
 
