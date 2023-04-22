@@ -19,7 +19,7 @@ def get_box(request):
     if box:
         return Response({'message': 'Box is inserted', 'box': True}, status=200)
     else:
-        return Response({'message': 'Please insert the box', 'box': False}, status=200)
+        return Response({'message': 'Click ok and insert the box', 'box': False}, status=200)
 
 
 
@@ -81,6 +81,7 @@ def deload(request):
 @api_view(['POST'])
 def take_pill(request):
     pill = Pills.objects.get(pk=request.data["pill_id"])
+
     if pill.motor is not None:
         new_inv = pill.inventory - 1
         if new_inv > 0:
@@ -146,7 +147,7 @@ def create_alarms(request):
 @api_view(['POST'])
 def create_pill(request):
     null_values = Pills.objects.exclude(motor__isnull=True).count()
-    if null_values < 4:
+    if null_values < 3:
         empty_motor = Pills.objects.exclude(motor__isnull=False).values_list('id', flat=True).first()
         serializer = CreatePillSerializer(data=request.data)
         if serializer.is_valid():
@@ -157,7 +158,7 @@ def create_pill(request):
             return Response({"message": "Created successfully"}, status=status.HTTP_201_CREATED)
         else:
             return Response({"message": "Something went wrong please try again"}, status=200)
-    return Response({"message": "The machine is full"}, status=200)
+    return Response({"message": "The machine is full", "full": True}, status=200)
 
 
 @api_view(['POST'])

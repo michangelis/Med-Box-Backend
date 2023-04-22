@@ -15,7 +15,7 @@ class Pills(models.Model):
     imageSrc = models.SlugField(null=True, default='./pills/Acetaminophen.jpeg')
     weight = models.CharField(max_length=255, null=True)
     perscription = models.BooleanField(default=False)
-    motor = models.ForeignKey(Motor, on_delete=models.PROTECT, null=True)
+    motor = models.ForeignKey(Motor, on_delete=models.CASCADE, null=True)
 
 
 
