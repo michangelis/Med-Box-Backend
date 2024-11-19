@@ -210,4 +210,17 @@ values (8, false, 11, '2023-04-13');/*David*/
 insert into medb_taken
 values (9, false, 12, '2023-04-14');
 
+--MOTORS
+insert into medb_motor
+values (1, 'motor1.py', 'dmotor1.py');
+
+insert into medb_motor
+values (2, 'motor2.py', 'dmotor2.py');
+
+insert into medb_motor
+values (3, 'motor3.py', 'dmotor3.py');
+
+insert into medb_motor
+values (4, 'motor4.py', 'dmotor4.py');
+
 
