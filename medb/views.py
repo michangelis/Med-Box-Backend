@@ -21,7 +21,7 @@ def after_insert_pill(request, pill_id):
     try:
         pill = Pills.objects.get(id=pill_id)
         reset = 10-pill.inventory
-        for x in range(reset):
+#         for x in range(reset):
 #             subprocess.run(["python3",pill.motor.script])
         return Response({'message': "pill intake success"},status=200)
     except Exception as e:
@@ -37,7 +37,7 @@ def insert_pill(request, pill_id):
     except Exception as e:
         print(e)
         return Response(status=200)
-    
+
 
 
 @api_view()
