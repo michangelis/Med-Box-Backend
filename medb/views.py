@@ -11,16 +11,33 @@ from datetime import datetime, timedelta
 from django.shortcuts import get_object_or_404
 from .models import Users, Pills, UserPerscriptionPill
 from django.http import HttpRequest
+# import subprocess
 
-@api_view()
-def get_box(request):
-    print('angelkas cool electician shit')
-    box = True
-    if box:
-        return Response({'message': 'Box is inserted', 'box': True}, status=200)
-    else:
-        return Response({'message': 'Please insert the box', 'box': False}, status=200)
 
+
+@api_view(['POST'])
+def after_insert_pill(request, pill_id):
+    print(pill_id)
+    try:
+        pill = Pills.objects.get(id=pill_id)
+        reset = 10-pill.inventory
+        for x in range(reset):
+#             subprocess.run(["python3",pill.motor.script])
+        return Response({'message': "pill intake success"},status=200)
+    except Exception as e:
+        print(e)
+        return Response(status=200)
+
+@api_view(['POST'])
+def insert_pill(request, pill_id):
+    try:
+        pill = Pills.objects.get(id=pill_id)
+#         subprocess.run(["python3",pill.motor.script])
+        return Response({'message': "pill intake"},status=200)
+    except Exception as e:
+        print(e)
+        return Response(status=200)
+    
 
 
 @api_view()
@@ -65,9 +82,9 @@ def get_disable(request, pill_id):
 def deload(request):
     print(request.data["pill_id"])
     pill = get_object_or_404(Pills, pk=request.data["pill_id"])
-    if pill.motor is not None:
-        for i in range(11):
-            print(pill.motor.dscript)
+    if pill.motor is not None or pill.inventory == 0:
+#         for i in range(20):
+#             subprocess.run(["python3",pill.motor.dscript])
         pill.inventory = 0
         pill.motor = None
 
@@ -84,15 +101,17 @@ def take_pill(request):
     if pill.motor is not None:
         new_inv = pill.inventory - 1
         if new_inv > 0:
-            print(pill.motor.script)
+#             subprocess.run(["python3",pill.motor.script])
             pill.inventory = new_inv
             pill.save()
             return Response({'message': 'Here is your pill'}, status=200)
         elif new_inv == 0:
-            print(pill.motor.script)
+#             subprocess.run(["python3",pill.motor.script])
             pill.motor = None
             pill.save()
             return Response({'message': 'Here is your pill but empty'}, status=200)
+        else:
+            return Response({'message': 'No pills in machine'}, status=200)
     else:
         return Response({'message': 'No pills in machine'}, status=200)
 
@@ -146,18 +165,17 @@ def create_alarms(request):
 @api_view(['POST'])
 def create_pill(request):
     null_values = Pills.objects.exclude(motor__isnull=True).count()
-    if null_values < 4:
+    if null_values < 3:
         empty_motor = Pills.objects.exclude(motor__isnull=False).values_list('id', flat=True).first()
         serializer = CreatePillSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(motor_id=empty_motor)
             motor = get_object_or_404(Motor, pk=empty_motor)
-            for inv in range(serializer.data["inventory"]):
-                print(motor.script)
-            return Response({"message": "Created successfully"}, status=status.HTTP_201_CREATED)
+            pill = Pills.objects.filter(motor=motor).first()
+            return Response({"message": "Created successfully", "full": False, "id": pill.id, "counter": pill.inventory}, status=status.HTTP_201_CREATED)
         else:
-            return Response({"message": "Something went wrong please try again"}, status=200)
-    return Response({"message": "The machine is full"}, status=200)
+            return Response({"message": "Something went wrong please try again", "full": True}, status=200)
+    return Response({"message": "The machine is full", "full": True}, status=200)
 
 
 @api_view(['POST'])
@@ -182,45 +200,45 @@ def register_user(request):
     }
     full_name = f"{user.first_name}_{user.last_name}"
     print(full_name)
+#     subprocess.run(["python3", "/home/angelkas/Desktop/Face_Detection/photoshooting.py", full_name])
+#     subprocess.run(["python3", "/home/angelkas/Desktop/Face_Detection/Face_Trainer.py", full_name])
     return Response(response_data)
 
 
 @api_view()
 def verify_user(request, alarm_id):
+    print(alarm_id)
     alarm = get_object_or_404(Alarm, pk=alarm_id)
     first_name = alarm.user_prescription_pill.user.first_name
     last_name = alarm.user_prescription_pill.user.last_name
     full_name = f"{first_name}_{last_name}"
     print(full_name)
-    if full_name is not None:
-        return Response({'message': False}, status=200)
-    else:
+#     isUser = subprocess.run(["python3", "/home/angelkas/Desktop/Face_Detection/Face_Recog.py", full_name])
+    if isUser:
         return Response({'message': True}, status=200)
+    else:
+        return Response({'message': False}, status=200)
+
 
 
 @api_view(['POST'])
 def take_medication(request, alarm_id):
-    box = True
     alarm = get_object_or_404(Alarm, pk=alarm_id)
     pill = alarm.user_prescription_pill.per_pill
     if pill.motor is not None:
-        if box:
-            for quant in range(alarm.quantity):
-                new_inv = pill.inventory - 1
-                if new_inv > 0:
-                    print(pill.motor.script)
-                    pill.inventory = new_inv
-                    pill.save()
-                    message = "Here are your pills"
-                elif new_inv == 0:
-                    print(pill.motor.script)
-                    pill.motor = None
-                    pill.save()
-                    message = "The pills are empty"
-        else:
-            return Response({'message': 'Please insert the box'}, status=200)
-    else:
-        return Response({'message': 'No pills in machine'}, status=200)
+        for quant in range(alarm.quantity):
+            new_inv = pill.inventory - 1
+            if new_inv > 0:
+#                 subprocess.run(["python3",pill.motor.script])
+                pill.inventory = new_inv
+                pill.save()
+                message = "Here are your pills"
+            elif new_inv == 0:
+#                 subprocess.run(["python3",pill.motor.script])
+                pill.motor = None
+                pill.inventory = new_inv
+                pill.save()
+                message = "The pills are empty"
 
     taken = True
     serializer = TakenSerializer(data={'taken': taken, 'alarm': alarm.id})
@@ -229,7 +247,7 @@ def take_medication(request, alarm_id):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'No pills in machine'}, status=200)
 
 
 @api_view()
@@ -376,7 +394,7 @@ def get_comments(request, pill_id):
     try:
         pill = Pills.objects.get(id=pill_id)
     except Pills.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=200)
 
     comments = Comment.objects.filter(pill=pill)
     serializer = CommentSerializer(comments, many=True)
