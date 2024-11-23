@@ -36,13 +36,13 @@ insert into medb_user_prescription_pill
 values (2, 2, 1);
 
 insert into medb_user_prescription_pill
-values (3, 1, 2);
+values (3, 2, 2);
 
 insert into medb_user_prescription_pill
-values (4, 2, 2);
+values (4, 3, 2);
 
 insert into medb_user_prescription_pill
-values (5, 2, 3);
+values (5, 1, 3);
 
 insert into medb_user_prescription_pill
 values (6, 3, 3);
@@ -66,13 +66,25 @@ values (7, 'Sunday');
 
 -- ALARM SCHEDULES
 insert into medb_alarm(id, quantity, soundSrc, time, day_id, user_prescription_pill_id)
-values (1, 1, '/Users/Desktop/Alarm.wav', '10:00:00', 1, 1);
+values (1, 1, '/Users/Desktop/Alarm.wav', '10:00:00', 7, 1);
 
 insert into medb_alarm(id, quantity, soundSrc, time, day_id, user_prescription_pill_id)
-values (2, 2, '/Users/Desktop/Alarm.wav', '22:00:00', 1, 2);
+values (2, 1, '/Users/Desktop/Alarm.wav', '11:00:00', 7, 2);
 
 insert into medb_alarm(id, quantity, soundSrc, time, day_id, user_prescription_pill_id)
-values (3, 1, '/Users/Desktop/Alarm.wav', '11:50:00', 2, 3);
+values (3, 1, '/Users/Desktop/Alarm.wav', '12:00:00', 7, 3);
+
+insert into medb_alarm(id, quantity, soundSrc, time, day_id, user_prescription_pill_id)
+values (4, 1, '/Users/Desktop/Alarm.wav', '13:00:00', 7, 4);
+
+insert into medb_alarm(id, quantity, soundSrc, time, day_id, user_prescription_pill_id)
+values (5, 1, '/Users/Desktop/Alarm.wav', '14:00:00', 7, 5);
+
+insert into medb_alarm(id, quantity, soundSrc, time, day_id, user_prescription_pill_id)
+values (6, 1, '/Users/Desktop/Alarm.wav', '15:50:00', 7, 6);
+
+insert into medb_alarm(id, quantity, soundSrc, time, day_id, user_prescription_pill_id)
+values (7, 1, '/Users/Desktop/Alarm.wav', '16:50:00', 7, 6);
 
 
 --COMMENTS
@@ -97,7 +109,7 @@ insert into medb_taken
 values (3, false, 3, '2023-04-11');/*Jane*/
 
 insert into medb_taken
-values (4, true, 4, '2023-04-11');/*Jane*/
+values (4, false, 4, '2023-04-11');/*Jane*/
 
 insert into medb_taken
 values (5, false, 5, '2023-04-12');/*David*/
@@ -106,13 +118,7 @@ insert into medb_taken
 values (6, false, 6, '2023-04-12');/*David*/
 
 insert into medb_taken
-values (7, false, 7, '2023-04-13');/*Jane*/
-
-insert into medb_taken
-values (8, false, 11, '2023-04-13');/*David*/
-
-insert into medb_taken
-values (9, false, 12, '2023-04-14');
+values (7, false, 6, '2023-04-12');/*David*/
 
 --MOTORS
 insert into medb_motor
