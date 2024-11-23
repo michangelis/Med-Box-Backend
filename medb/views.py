@@ -207,13 +207,12 @@ def register_user(request):
 
 @api_view()
 def verify_user(request, alarm_id):
-    print(alarm_id)
     alarm = get_object_or_404(Alarm, pk=alarm_id)
     first_name = alarm.user_prescription_pill.user.first_name
     last_name = alarm.user_prescription_pill.user.last_name
     full_name = f"{first_name}_{last_name}"
-    print(full_name)
-#     isUser = subprocess.run(["python3", "/home/angelkas/Desktop/Face_Detection/Face_Recog.py", full_name])
+    isUser = True
+    # isUser = subprocess.run(["python3", "/home/angelkas/Desktop/Face_Detection/Face_Recog.py", full_name])
     if isUser:
         return Response({'message': True}, status=200)
     else:
@@ -225,13 +224,15 @@ def verify_user(request, alarm_id):
 def take_medication(request, alarm_id):
     alarm = get_object_or_404(Alarm, pk=alarm_id)
     pill = alarm.user_prescription_pill.per_pill
+    taken = False
     if pill.motor is not None:
         for quant in range(alarm.quantity):
             new_inv = pill.inventory - 1
             if new_inv > 0:
-#                 subprocess.run(["python3",pill.motor.script])
+                # subprocess.run(["python3",pill.motor.script])
                 pill.inventory = new_inv
                 pill.save()
+                taken = True
                 message = "Here are your pills"
             elif new_inv == 0:
 #                 subprocess.run(["python3",pill.motor.script])
@@ -240,7 +241,6 @@ def take_medication(request, alarm_id):
                 pill.save()
                 message = "The pills are empty"
 
-    taken = True
     serializer = TakenSerializer(data={'taken': taken, 'alarm': alarm.id})
 
     if serializer.is_valid():
