@@ -1,5 +1,6 @@
 from django.db.models import Q, Count
 from rest_framework import status
+
 from .models import Users, UserPerscriptionPill, Alarm, Pills, Comment, Taken, Days, Motor
 from .serializers import UserPerscriptionPillSerializer, UsrSerializer, NextUserSerializer, \
     UserSer, UserSerlzr, UserSerlzer, PillsSerializer, PillSerializer, CommentSerializer, \
@@ -48,23 +49,33 @@ def get_user_alarms(request: HttpRequest, user_id):
 
     # Create a list of dictionaries containing the required information
     alarm_list = []
+    today = datetime.now().date()
+    this_weekday = today.weekday()  # 0: Monday, 6: Sunday
+
     for alarm in alarms:
         pill_name = alarm.user_prescription_pill.per_pill.name
         alarm_time = alarm.time
-        today = datetime.now().date()
-        this_weekday = today.weekday()
-        target_weekday = alarm.day.id - 1
-        days_difference = target_weekday - this_weekday
-        target_date = today + timedelta(days=days_difference)
-        target_time = datetime.strptime(str(alarm_time), '%H:%M:%S').time()
-        target_datetime = datetime.combine(target_date, target_time)
 
-        alarm_data = {
-            'id': alarm.id,
-            'title': pill_name,
-            'start': target_datetime.isoformat(),
-        }
-        alarm_list.append(alarm_data)
+        # Iterate through the next 7 days starting from today
+        for day_offset in range(7):
+            target_date = today + timedelta(days=day_offset)
+            target_weekday = target_date.weekday()  # 0-based weekday of the target date
+
+            # Check if the alarm is scheduled for the target day
+            if target_weekday == (alarm.day.id - 1):  # Convert `day.id` to 0-based index
+                target_time = datetime.strptime(str(alarm_time), '%H:%M:%S').time()
+                target_datetime = datetime.combine(target_date, target_time)
+
+                print(f"Today (weekday): {this_weekday}")
+                print(f"Target weekday: {target_weekday}")
+                print(f"Target datetime: {target_datetime.isoformat()}")
+
+                alarm_data = {
+                    'id': alarm.id,
+                    'title': pill_name,
+                    'start': target_datetime.isoformat(),
+                }
+                alarm_list.append(alarm_data)
 
     return Response({'alarms': alarm_list}, status=200)
 

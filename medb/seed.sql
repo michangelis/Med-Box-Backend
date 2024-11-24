@@ -66,25 +66,25 @@ values (7, 'Sunday');
 
 -- ALARM SCHEDULES
 insert into medb_alarm(id, quantity, soundSrc, time, day_id, user_prescription_pill_id)
-values (1, 1, '/Users/Desktop/Alarm.wav', '10:00:00', 7, 1);
+values (1, 1, '/Users/Desktop/Alarm.wav', '19:00:00', 7, 1);
 
 insert into medb_alarm(id, quantity, soundSrc, time, day_id, user_prescription_pill_id)
-values (2, 1, '/Users/Desktop/Alarm.wav', '11:00:00', 7, 2);
+values (2, 1, '/Users/Desktop/Alarm.wav', '19:30:00', 7, 2);
 
 insert into medb_alarm(id, quantity, soundSrc, time, day_id, user_prescription_pill_id)
-values (3, 1, '/Users/Desktop/Alarm.wav', '12:00:00', 7, 3);
+values (3, 1, '/Users/Desktop/Alarm.wav', '20:00:00', 7, 3);
 
 insert into medb_alarm(id, quantity, soundSrc, time, day_id, user_prescription_pill_id)
-values (4, 1, '/Users/Desktop/Alarm.wav', '13:00:00', 7, 4);
+values (4, 1, '/Users/Desktop/Alarm.wav', '20:30:00', 7, 4);
 
 insert into medb_alarm(id, quantity, soundSrc, time, day_id, user_prescription_pill_id)
-values (5, 1, '/Users/Desktop/Alarm.wav', '14:00:00', 7, 5);
+values (5, 1, '/Users/Desktop/Alarm.wav', '21:00:00', 7, 5);
 
 insert into medb_alarm(id, quantity, soundSrc, time, day_id, user_prescription_pill_id)
-values (6, 1, '/Users/Desktop/Alarm.wav', '15:50:00', 7, 6);
+values (6, 1, '/Users/Desktop/Alarm.wav', '21:30:00', 7, 6);
 
 insert into medb_alarm(id, quantity, soundSrc, time, day_id, user_prescription_pill_id)
-values (7, 1, '/Users/Desktop/Alarm.wav', '16:50:00', 7, 6);
+values (7, 1, '/Users/Desktop/Alarm.wav', '22:00:00', 7, 6);
 
 
 --COMMENTS
