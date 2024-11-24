@@ -88,7 +88,7 @@ WSGI_APPLICATION = 'storefront.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db_mediva.sqlite3',
+        'NAME': BASE_DIR / 'db_final.sqlite3',
     }
 }
 
